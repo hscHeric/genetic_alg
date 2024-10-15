@@ -32,9 +32,24 @@ pub fn slice_chromosome(chromosome: &[u8], slice_len: usize) -> Vec<Vec<u8>> {
     }
 
     //Adiciona tambem se ouver valores restantes que não conseguiram formar um subgrupo
-    if !group.is_empty() {
-        subgroups.push(group);
-    }
+    // if !group.is_empty() {
+    //     subgroups.push(group);
+    // }
 
     subgroups
+}
+
+pub fn vec_u8_to_decimal(subgroups: &[Vec<u8>]) -> Vec<u32> {
+    let mut vec_decimals = Vec::with_capacity(subgroups.len());
+
+    for binary_vec in subgroups {
+        let mut decimal: u32 = 0;
+        for (i, &bit) in binary_vec.iter().rev().enumerate() {
+            if bit == 1 {
+                decimal += 1 << i;
+            }
+        }
+        vec_decimals.push(decimal)
+    }
+    vec_decimals
 }

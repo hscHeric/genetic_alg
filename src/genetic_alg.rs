@@ -20,7 +20,7 @@ pub fn gen_pop(num_genes: usize, num_chromosome: usize) -> Vec<Vec<u8>> {
     pop
 }
 
-pub fn slice_chromosome(chromosome: &[u8], slice_len: usize) -> Vec<Vec<u8>> {
+fn slice_chromosome(chromosome: &[u8], slice_len: usize) -> Vec<Vec<u8>> {
     let mut group = Vec::with_capacity(slice_len);
     let mut subgroups = Vec::new();
     for (i, &value) in chromosome.iter().enumerate() {
@@ -151,7 +151,7 @@ pub fn generate_new_pop(
     new_pop
 }
 
-fn get_best_chromosome(pop: &[Vec<u8>]) -> (Vec<u8>, u64) {
+pub fn get_best_chromosome(pop: &[Vec<u8>]) -> (Vec<u8>, u64) {
     let mut rng = rand::thread_rng();
     let mut best_chromosome = fitness(&pop[rng.gen_range(0..pop.len())]);
     for i in pop {

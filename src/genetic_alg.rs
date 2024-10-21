@@ -1,3 +1,5 @@
+use std::vec;
+
 use rand::Rng;
 
 fn gen_chromosome(num_genes: usize) -> Vec<u8> {
@@ -106,14 +108,14 @@ fn crossover(chromosome_a: &[u8], chromosome_b: &[u8]) -> Vec<u8> {
     new_chromosome
 }
 
-pub fn mutation(chromosome: &[u8], mutate_len: f64) -> Vec<u8> {
+pub fn mutation(chromosome: &[u8], mutation_tax: f64) -> Vec<u8> {
     let mut rng = rand::thread_rng();
-    let mut genes = chromosome.to_vec();
+    let mut genes: Vec<u8> = chromosome.to_vec();
 
     (0..genes.len()).for_each(|i| {
-        let r = rng.gen_range(0.0..=1.0);
+        let r: f64 = rng.gen_range(0.0..=1.0);
 
-        if r <= mutate_len {
+        if r <= mutation_tax {
             if genes[i] == 0 {
                 genes[i] = 1;
             } else {
@@ -123,4 +125,25 @@ pub fn mutation(chromosome: &[u8], mutate_len: f64) -> Vec<u8> {
     });
 
     genes
+}
+
+pub fn generate_new_pop(init_pop: &[Vec<u8>], mutation_tax: f64) -> Vec<Vec<u8>> {
+    let mut new_pop: Vec<Vec<u8>> = Vec::new();
+    let mut rng = rand::thread_rng();
+    while new_pop.len() < init_pop.len() {
+        let chromosome_a = &init_pop[rng.gen_range(0..init_pop.len())];
+        let chromosome_b = &init_pop[rng.gen_range(0..init_pop.len())];
+        let best_chromosome_a = select_chromosome(chromosome_a, chromosome_b).to_vec();
+
+        let chromosome_a = &init_pop[rng.gen_range(0..init_pop.len())];
+        let chromosome_b = &init_pop[rng.gen_range(0..init_pop.len())];
+        let best_chromosome_b = select_chromosome(chromosome_a, chromosome_b).to_vec();
+
+        let new_chromosome = crossover(&best_chromosome_a, &best_chromosome_b);
+        let child = mutation(&new_chromosome, mutation_tax);
+
+        new_pop.push(child);
+    }
+
+    new_pop
 }

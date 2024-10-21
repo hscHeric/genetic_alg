@@ -59,7 +59,7 @@ pub fn vec_u8_to_decimal(subgroups: &[Vec<u8>]) -> Vec<u32> {
 /**
 * o 'a serve para denotar explicitamente que o tempo de vida de a e b será o mesmo
 */
-pub fn select_chromosome<'a>(chromosome_a: &'a [u8], chromosome_b: &'a [u8]) -> &'a [u8] {
+fn select_chromosome<'a>(chromosome_a: &'a [u8], chromosome_b: &'a [u8]) -> &'a [u8] {
     if fitness(chromosome_a).1 > fitness(chromosome_b).1 {
         chromosome_a
     } else {
@@ -67,7 +67,7 @@ pub fn select_chromosome<'a>(chromosome_a: &'a [u8], chromosome_b: &'a [u8]) -> 
     }
 }
 
-pub fn fitness(chromosome: &[u8]) -> (Vec<u8>, u64) {
+fn fitness(chromosome: &[u8]) -> (Vec<u8>, u64) {
     todo!("Função de fitness");
 }
 
@@ -108,7 +108,7 @@ fn crossover(chromosome_a: &[u8], chromosome_b: &[u8]) -> Vec<u8> {
     new_chromosome
 }
 
-pub fn mutation(chromosome: &[u8], mutation_tax: f64) -> Vec<u8> {
+fn mutation(chromosome: &[u8], mutation_tax: f64) -> Vec<u8> {
     let mut rng = rand::thread_rng();
     let mut genes: Vec<u8> = chromosome.to_vec();
 
@@ -146,4 +146,17 @@ pub fn generate_new_pop(init_pop: &[Vec<u8>], mutation_tax: f64) -> Vec<Vec<u8>>
     }
 
     new_pop
+}
+
+fn get_best_chromosome(pop: &[Vec<u8>]) -> (Vec<u8>, u64) {
+    let mut rng = rand::thread_rng();
+    let mut best_chromosome = fitness(&pop[rng.gen_range(0..pop.len())]);
+    for i in pop {
+        let chromosome = fitness(i);
+        if chromosome.1 > best_chromosome.1 {
+            best_chromosome = chromosome;
+        }
+    }
+
+    best_chromosome
 }

@@ -1,4 +1,4 @@
-use std::vec;
+use std::{clone::CloneToUninit, vec};
 
 use rand::Rng;
 
@@ -108,14 +108,14 @@ fn crossover(chromosome_a: &[u8], chromosome_b: &[u8]) -> Vec<u8> {
     new_chromosome
 }
 
-fn mutation(chromosome: &[u8], mutation_tax: f64) -> Vec<u8> {
+fn mutation(chromosome: &[u8], mutation_rate: f64) -> Vec<u8> {
     let mut rng = rand::thread_rng();
     let mut genes: Vec<u8> = chromosome.to_vec();
 
     (0..genes.len()).for_each(|i| {
         let r: f64 = rng.gen_range(0.0..=1.0);
 
-        if r <= mutation_tax {
+        if r <= mutation_rate {
             if genes[i] == 0 {
                 genes[i] = 1;
             } else {
@@ -127,8 +127,12 @@ fn mutation(chromosome: &[u8], mutation_tax: f64) -> Vec<u8> {
     genes
 }
 
-pub fn generate_new_pop(init_pop: &[Vec<u8>], mutation_tax: f64) -> Vec<Vec<u8>> {
-    let mut new_pop: Vec<Vec<u8>> = Vec::new();
+pub fn generate_new_pop(
+    init_pop: &[Vec<u8>],
+    mutation_rate: f64,
+    elitism_rate: f64,
+) -> Vec<Vec<u8>> {
+    let mut new_pop: Vec<Vec<u8>> = elitism(init_pop, elitism_rate);
     let mut rng = rand::thread_rng();
     while new_pop.len() < init_pop.len() {
         let chromosome_a = &init_pop[rng.gen_range(0..init_pop.len())];
@@ -140,7 +144,7 @@ pub fn generate_new_pop(init_pop: &[Vec<u8>], mutation_tax: f64) -> Vec<Vec<u8>>
         let best_chromosome_b = select_chromosome(chromosome_a, chromosome_b).to_vec();
 
         let new_chromosome = crossover(&best_chromosome_a, &best_chromosome_b);
-        let child = mutation(&new_chromosome, mutation_tax);
+        let child = mutation(&new_chromosome, mutation_rate);
 
         new_pop.push(child);
     }
@@ -159,4 +163,18 @@ fn get_best_chromosome(pop: &[Vec<u8>]) -> (Vec<u8>, u64) {
     }
 
     best_chromosome
+}
+
+// Função que implementa o conceito de elitismo, inserindo na nova populacao os melhores individuos
+// das anteriores
+fn elitism(init_pop: &[Vec<u8>], elitism_rate: f64) -> Vec<Vec<u8>> {
+    let mut new_pop = Vec::new();
+    let best_chromosome = get_best_chromosome(init_pop);
+    let num_repetitions = (init_pop.len() as f64 * elitism_rate).round() as usize;
+
+    for _ in 0..num_repetitions {
+        new_pop.push(best_chromosome.clone().0);
+    }
+
+    new_pop
 }

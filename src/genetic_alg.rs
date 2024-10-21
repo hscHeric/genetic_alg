@@ -1,5 +1,3 @@
-use std::{clone::CloneToUninit, vec};
-
 use rand::Rng;
 
 fn gen_chromosome(num_genes: usize) -> Vec<u8> {
@@ -67,8 +65,9 @@ fn select_chromosome<'a>(chromosome_a: &'a [u8], chromosome_b: &'a [u8]) -> &'a 
     }
 }
 
-fn fitness(chromosome: &[u8]) -> (Vec<u8>, u64) {
-    todo!("Função de fitness");
+pub fn fitness(chromosome: &[u8]) -> (Vec<u8>, u64) {
+    let count_of_ones: u64 = chromosome.iter().filter(|&&x| x == 1).count() as u64;
+    (chromosome.to_vec(), count_of_ones)
 }
 
 fn crossover(chromosome_a: &[u8], chromosome_b: &[u8]) -> Vec<u8> {

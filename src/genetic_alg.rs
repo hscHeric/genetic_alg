@@ -53,3 +53,74 @@ pub fn vec_u8_to_decimal(subgroups: &[Vec<u8>]) -> Vec<u32> {
     }
     vec_decimals
 }
+
+/**
+* o 'a serve para denotar explicitamente que o tempo de vida de a e b será o mesmo
+*/
+pub fn select_chromosome<'a>(chromosome_a: &'a [u8], chromosome_b: &'a [u8]) -> &'a [u8] {
+    if fitness(chromosome_a).1 > fitness(chromosome_b).1 {
+        chromosome_a
+    } else {
+        chromosome_b
+    }
+}
+
+pub fn fitness(chromosome: &[u8]) -> (Vec<u8>, u64) {
+    todo!("Função de fitness");
+}
+
+fn crossover(chromosome_a: &[u8], chromosome_b: &[u8]) -> Vec<u8> {
+    let mut chrom_a = chromosome_a.to_vec();
+    let mut chrom_b = chromosome_b.to_vec();
+
+    if chrom_a.len() % 2 != 0 {
+        chrom_a.insert(0, 0);
+    }
+
+    if chrom_b.len() % 2 != 0 {
+        chrom_b.insert(0, 0);
+    }
+
+    match chrom_a.len() > chrom_b.len() {
+        true => {
+            let diff: usize = chrom_a.len() - chrom_b.len();
+            chrom_b = [vec![0; diff], chrom_b].concat();
+        }
+        false => match chrom_b.len() > chrom_a.len() {
+            true => {
+                let diff = chrom_b.len() - chrom_a.len();
+                chrom_a = [vec![0; diff], chrom_a].concat();
+            }
+            false => (),
+        },
+    }
+
+    let mid = chrom_a.len() / 2;
+    let first_half = &chrom_a[..mid];
+    let second_half = &chrom_b[mid..];
+
+    let mut new_chromosome = Vec::with_capacity(chrom_a.len());
+    new_chromosome.extend(first_half);
+    new_chromosome.extend(second_half);
+
+    new_chromosome
+}
+
+pub fn mutation(chromosome: &[u8], mutate_len: f64) -> Vec<u8> {
+    let mut rng = rand::thread_rng();
+    let mut genes = chromosome.to_vec();
+
+    (0..genes.len()).for_each(|i| {
+        let r = rng.gen_range(0.0..=1.0);
+
+        if r <= mutate_len {
+            if genes[i] == 0 {
+                genes[i] = 1;
+            } else {
+                genes[i] = 0;
+            }
+        }
+    });
+
+    genes
+}
